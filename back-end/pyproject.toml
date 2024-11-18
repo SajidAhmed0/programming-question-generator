@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "programming-question-generator-back-end"
 version = "0.1.0"
-description = "Back end for programming question generator"
+description = "Back end for the project programming question generator"
 authors = ["SajidAhmed0 <mjsahmed205@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.13"
 django = "^5.1.3"
 
 
