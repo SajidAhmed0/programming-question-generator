@@ -1,15 +1,63 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.response import Response
 
-
+import json
 # Create your views here.
 from .services import generate_programming_question
+from .mcq_validator import validate_mcq
+from .short_answer_validator import validate_short_answer
+from .automatic_validation import validate_mcq_with_llm, validate_short_answer_with_llm
+
+from .serializers import ProgrammingQuestionSerializer
 
 class GeneratorView(APIView):
     def get(self, request):
-        generate_programming_question("recursion", 'coding', 'medium')
+        question = generate_programming_question("recursion", 'short-answer', 'medium')
 
+        if question.question_type == 'mcq':
+            valid = validate_mcq(question.description, question.options, question.correct_option)
+
+            if valid['is_valid']:
+                feedback = valid['feedback']
+                print(f"{feedback}")
+                llm_valid = validate_mcq_with_llm(question.description, question.options, question.correct_option)
+
+                if llm_valid['is_valid']:
+                    feedback = llm_valid['feedback']
+                    print(f"{feedback}")
+                else:
+                    feedback = llm_valid['feedback']
+                    print(f"{feedback}")
+            else:
+                feedback = valid['feedback']
+                print(f"{feedback}")
+
+        elif question.question_type == 'short-answer':
+            valid = validate_short_answer(question.description, question.expected_answers)
+
+            if valid['is_valid']:
+                feedback = valid['feedback']
+                print(f"{feedback}")
+                llm_valid = validate_short_answer_with_llm(question.description, question.expected_answers)
+
+                if llm_valid['is_valid']:
+                    feedback = llm_valid['feedback']
+                    print(f"{feedback}")
+                else:
+                    feedback = llm_valid['feedback']
+                    print(f"{feedback}")
+            else:
+                feedback = valid['feedback']
+                print(f"{feedback}")
+
+        elif question.question_type == 'coding':
+            print("coding validation")
+
+        serializer = ProgrammingQuestionSerializer(question)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 

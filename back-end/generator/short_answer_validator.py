@@ -18,8 +18,4 @@ def validate_short_answer(question_text, expected_answers):
     if len(expected_answers) == 1 and expected_answers[0].strip() == "":
         return {"is_valid": False, "feedback": "Expected answer is blank."}
 
-    # Check for ambiguity in expected answers
-    if len(set(expected_answers)) != len(expected_answers):
-        return {"is_valid": False, "feedback": "Duplicate expected answers detected."}
-
     return {"is_valid": True, "feedback": "Short-answer question is valid."}

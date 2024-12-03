@@ -20,10 +20,6 @@ llm = ChatGroq(
     model="mixtral-8x7b-32768",
     temperature=0,
 )
-groq_model = ChatGroq(
-    model="mixtral-8x7b-32768",
-    temperature=0,
-)
 
 def generate_programming_question(topic, type, difficulty):
     retriever_input = f"Generate questions about: {topic}"
@@ -58,7 +54,7 @@ def generate_programming_question(topic, type, difficulty):
 
     parser = StrOutputParser()
 
-    chain = groq_model | parser
+    chain = llm | parser
 
     response = chain.invoke(prompt)
     print(response)
