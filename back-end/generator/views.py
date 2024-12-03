@@ -8,7 +8,7 @@ from .services import generate_programming_question
 
 class GeneratorView(APIView):
     def get(self, request):
-        generate_programming_question("recursion", 'mcq', 'medium')
+        generate_programming_question("recursion", 'coding', 'medium')
 
 
 
