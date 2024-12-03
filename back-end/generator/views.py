@@ -14,7 +14,7 @@ from .serializers import ProgrammingQuestionSerializer
 
 class GeneratorView(APIView):
     def get(self, request):
-        question = generate_programming_question("recursion", 'short-answer', 'medium')
+        question = generate_programming_question("recursion", 'mcq', 'medium')
 
         if question.question_type == 'mcq':
             valid = validate_mcq(question.description, question.options, question.correct_option)
@@ -27,6 +27,7 @@ class GeneratorView(APIView):
                 if llm_valid['is_valid']:
                     feedback = llm_valid['feedback']
                     print(f"{feedback}")
+                    question.validated = True
                 else:
                     feedback = llm_valid['feedback']
                     print(f"{feedback}")
@@ -45,6 +46,7 @@ class GeneratorView(APIView):
                 if llm_valid['is_valid']:
                     feedback = llm_valid['feedback']
                     print(f"{feedback}")
+                    question.validated = True
                 else:
                     feedback = llm_valid['feedback']
                     print(f"{feedback}")
