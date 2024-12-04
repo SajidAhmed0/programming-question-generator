@@ -42,7 +42,7 @@ INSTALLED_APPS = [
    'rest_framework',
 
     # Custom apps
-    'generator'
+    'generator',
 ]
 
 MIDDLEWARE = [

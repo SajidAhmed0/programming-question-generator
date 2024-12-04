@@ -4,6 +4,7 @@ from django.db import models
 class ProgrammingQuestion(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
+    language = models.CharField(max_length=50, choices=[('python', 'Python'), ('javascript', 'Java Script'), ('java', 'Java')])
     difficulty = models.CharField(max_length=50, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')])
     question_type = models.CharField(max_length=50, choices=[('mcq', 'MCQ'), ('short-answer', 'Short Answer'), ('coding', 'Coding')])
     code_snippet = models.TextField(blank=True, null=True)  # For coding questions

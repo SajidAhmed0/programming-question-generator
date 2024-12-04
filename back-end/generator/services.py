@@ -3,7 +3,7 @@ from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
-
+import ast
 import json
 
 load_dotenv()
@@ -31,8 +31,11 @@ def generate_programming_question(topic, type, difficulty):
     # Combine retrieved context and topic for LLM
     prompt = f"""
         You are an exper in question generation. You have to create a question for below topic with the difficulty level. and give me only the output(question and answer)
-        You should create a question for the type. 
-        You should give me a JSON object, keys as question, answer and there values for short-anser, coding questions. For mcq quesion you should use question, answers, correct_answer as keys and there valuse
+        You should create a question for the type.
+        You should give me a JSON object, keys as question, answer and there values for short-answer, coding questions. 
+        for coding question answer should be executable code only.
+        For mcq question you should use question, answers, correct_answer as keys and there valuse
+        STRICTLY FLOW THE JSON STRUCTURE. DO NOT CREATE UNNECESSARY KEYS. 
         
         Context:
         {retrieved_context}
@@ -46,10 +49,12 @@ def generate_programming_question(topic, type, difficulty):
         Type:
         {type}
 
-        Generate a questions about the topic using the context and difficulty level in the format.
+        Generate ONLY ONE questions about the topic using the context and difficulty level in the format.
         Only give me question and answer.
         Give me in following format: JSON
-        
+        KEYS for MCQ (question, answers, correct_answer)
+        KEYS for Coding, Short-answer (question, answer)
+        The output must be a valid JSON, with appropriate key-value pairs.
         """
 
     parser = StrOutputParser()
@@ -58,12 +63,12 @@ def generate_programming_question(topic, type, difficulty):
 
     response = chain.invoke(prompt)
     print(response)
-
+    response = response.strip()  # Remove extra whitespace
     # Replace invalid escape sequences
     response = response.replace("\\_", "_")
 
-    # Convert string to JSON object
     data = json.loads(response)
+
     print(data)
     print("#################################")
 

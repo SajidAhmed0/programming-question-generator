@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+import ast
 
 import json
 # Create your views here.
@@ -9,7 +10,7 @@ from .services import generate_programming_question
 from .mcq_validator import validate_mcq
 from .short_answer_validator import validate_short_answer
 from .automatic_validation import validate_mcq_with_llm, validate_short_answer_with_llm
-from .coding_validator import validate_coding
+from .coding_validator import validate_coding_sandboxed
 
 from .serializers import ProgrammingQuestionSerializer
 
@@ -56,7 +57,8 @@ class GeneratorView(APIView):
                 print(f"{feedback}")
 
         elif question.question_type == 'coding':
-            valid = validate_coding(question)
+            # valid = validate_coding(question)
+            valid = validate_coding_sandboxed(question.code_snippet, 'python')
 
             if valid['is_valid']:
                 feedback = valid['feedback']

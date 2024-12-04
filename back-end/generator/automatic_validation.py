@@ -26,10 +26,10 @@ def validate_mcq_with_llm(question):
 
     Requirements:
     1. Confirm if the correct option is valid.
-    2. Ensure the distractors are plausible.
-    3. Provide feedback on clarity and difficulty.
+    2. Provide feedback.
 
     Respond with your validation. You should respond JSON only with is_valid, feedback as keys.
+    STRICTLY FLOW THE JSON STRUCTURE. ONLY GIVE JSON OUTPUT
     """
     parser = StrOutputParser()
 
@@ -40,6 +40,7 @@ def validate_mcq_with_llm(question):
 
     # Replace invalid escape sequences
     response = response.replace("\\_", "_")
+    # response = response.replace("\\", "\\\\")
 
     # Convert string to JSON object
     data = json.loads(response)
@@ -54,13 +55,14 @@ def validate_short_answer_with_llm(question):
     Validate the following short-answer question:
 
     Question: {question_text}
-    Expected Answers: {', '.join(expected_answers)}
+    Expected Answers: {expected_answers}
 
     Requirements:
     1. Confirm if the question is clear and relevant.
     2. Confirm question and answer is correct.
 
     Respond with your validation. You should respond JSON only with is_valid, feedback as keys.
+    STRICTLY FLOW THE JSON STRUCTURE.
     """
     parser = StrOutputParser()
 
@@ -71,7 +73,8 @@ def validate_short_answer_with_llm(question):
 
     # Replace invalid escape sequences
     response = response.replace("\\_", "_")
-
+    # response = response.replace("\\", "\\\\")
+    print(response)
     # Convert string to JSON object
     data = json.loads(response)
 
