@@ -9,6 +9,7 @@ from .services import generate_programming_question
 from .mcq_validator import validate_mcq
 from .short_answer_validator import validate_short_answer
 from .automatic_validation import validate_mcq_with_llm, validate_short_answer_with_llm
+from .coding_validator import validate_coding
 
 from .serializers import ProgrammingQuestionSerializer
 
@@ -55,31 +56,16 @@ class GeneratorView(APIView):
                 print(f"{feedback}")
 
         elif question.question_type == 'coding':
-            print("coding validation")
+            valid = validate_coding(question)
+
+            if valid['is_valid']:
+                feedback = valid['feedback']
+                question.validated = True
+                print(f"{feedback}")
+            else:
+                feedback = valid['feedback']
+                print(f"{feedback}")
 
         serializer = ProgrammingQuestionSerializer(question)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-from django.http import JsonResponse
-from .mcq_validator import validate_mcq
-from .short_answer_validator import validate_short_answer
-
-def validate_question(request):
-    question_type = request.GET.get("type")
-    question_text = request.GET.get("text")
-    options = request.GET.getlist("options")
-    correct_option = request.GET.get("correct")
-    expected_answers = request.GET.getlist("answers")
-
-    if question_type == "mcq":
-        result = validate_mcq(question_text, options, correct_option)
-    elif question_type == "short":
-        result = validate_short_answer(question_text, expected_answers)
-    else:
-        return JsonResponse({"error": "Invalid question type."}, status=400)
-
-    return JsonResponse(result)
