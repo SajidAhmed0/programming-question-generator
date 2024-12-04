@@ -12,7 +12,11 @@ llm = ChatGroq(
     temperature=0,
 )
 
-def validate_mcq_with_llm(question_text, options, correct_option):
+def validate_mcq_with_llm(question):
+    question_text = question.description
+    options = question.options
+    correct_option = question.correct_option
+
     prompt = f"""
     Validate the following MCQ question:
 
@@ -42,7 +46,10 @@ def validate_mcq_with_llm(question_text, options, correct_option):
 
     return data
 
-def validate_short_answer_with_llm(question_text, expected_answers):
+def validate_short_answer_with_llm(question):
+    question_text = question.description
+    expected_answers = question.expected_answers
+
     prompt = f"""
     Validate the following short-answer question:
 

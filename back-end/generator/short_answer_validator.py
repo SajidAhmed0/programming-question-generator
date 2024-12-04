@@ -1,14 +1,17 @@
-def validate_short_answer(question_text, expected_answers):
+def validate_short_answer(question):
     """
     Validates a short-answer question.
 
     Args:
-        question_text (str): The question text.
-        expected_answers (list): A list of acceptable correct answers.
+        question (ProgrammingQuestion): The question.
 
     Returns:
         dict: Validation result and feedback.
     """
+
+    question_text = question.description
+    expected_answers = question.expected_answers
+
     if not question_text.strip():
         return {"is_valid": False, "feedback": "Question text cannot be empty."}
 

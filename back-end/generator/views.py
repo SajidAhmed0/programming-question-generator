@@ -14,15 +14,15 @@ from .serializers import ProgrammingQuestionSerializer
 
 class GeneratorView(APIView):
     def get(self, request):
-        question = generate_programming_question("recursion", 'mcq', 'medium')
+        question = generate_programming_question("recursion", 'coding', 'medium')
 
         if question.question_type == 'mcq':
-            valid = validate_mcq(question.description, question.options, question.correct_option)
+            valid = validate_mcq(question)
 
             if valid['is_valid']:
                 feedback = valid['feedback']
                 print(f"{feedback}")
-                llm_valid = validate_mcq_with_llm(question.description, question.options, question.correct_option)
+                llm_valid = validate_mcq_with_llm(question)
 
                 if llm_valid['is_valid']:
                     feedback = llm_valid['feedback']
@@ -36,12 +36,12 @@ class GeneratorView(APIView):
                 print(f"{feedback}")
 
         elif question.question_type == 'short-answer':
-            valid = validate_short_answer(question.description, question.expected_answers)
+            valid = validate_short_answer(question)
 
             if valid['is_valid']:
                 feedback = valid['feedback']
                 print(f"{feedback}")
-                llm_valid = validate_short_answer_with_llm(question.description, question.expected_answers)
+                llm_valid = validate_short_answer_with_llm(question)
 
                 if llm_valid['is_valid']:
                     feedback = llm_valid['feedback']

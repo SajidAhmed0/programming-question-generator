@@ -1,15 +1,17 @@
-def validate_mcq(question_text, options, correct_option):
+def validate_mcq(question):
     """
     Validates an MCQ question.
 
     Args:
-        question_text (str): The question text.
-        options (list): A list of answer options.
-        correct_option (str): The correct answer.
+        question (ProgrammingQuestion): The question.
 
     Returns:
         dict: Validation result and feedback.
     """
+    question_text = question.description
+    options = question.options
+    correct_option = question.correct_option
+
     if not question_text.strip():
         return {"is_valid": False, "feedback": "Question text cannot be empty."}
 
