@@ -64,7 +64,7 @@ class GeneratorView(APIView):
 
         elif question.question_type == 'coding':
             # valid = validate_coding(question)
-            valid = validate_coding_sandboxed(question.code_snippet, 'python')
+            valid = validate_coding_sandboxed(question.code_snippet, question.language)
 
             if valid['is_valid']:
                 feedback = valid['feedback']

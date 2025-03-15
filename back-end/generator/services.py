@@ -71,7 +71,7 @@ def generate_programming_question(topic, type, difficulty, language):
         You are an exper in question generation. You have to create a question for below topic with the difficulty level. and give me only the output(question and answer)
         You should create a question for the type.
         You should give me a JSON object, keys as question, answer and there values for short-answer, coding questions. 
-        for coding question answer should be executable code only.
+        for coding question answer should be executable valid code only.
         For mcq question you should use question, answers, correct_answer as keys and there valuse
         STRICTLY FLOW THE JSON STRUCTURE. DO NOT CREATE UNNECESSARY KEYS. 
         
@@ -120,6 +120,7 @@ def generate_programming_question(topic, type, difficulty, language):
     question.title = topic
     question.difficulty = difficulty
     question.question_type = type
+    question.language = language
 
     if type == "mcq":
         question.description = data['question']

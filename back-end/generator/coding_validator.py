@@ -79,9 +79,9 @@ def validate_coding_sandboxed(code_snippet, language, timeout=2):
     if language == 'python':
         process = multiprocessing.Process(target=execute_code_snippet_python, args=(code_snippet, result_queue))
     elif language == 'javascript':
-        process = multiprocessing.Process(target=execute_code_snippet_python, args=(code_snippet, result_queue))
+        process = multiprocessing.Process(target=execute_code_snippet_javascript, args=(code_snippet))
     elif language == 'java':
-        process = multiprocessing.Process(target=execute_code_snippet_python, args=(code_snippet, result_queue))
+        process = multiprocessing.Process(target=execute_code_snippet_java, args=(code_snippet))
 
     # Start the child process
     process.start()
