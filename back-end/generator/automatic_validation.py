@@ -29,7 +29,7 @@ def validate_mcq_with_llm(question):
     2. Provide feedback.
 
     Respond with your validation. You should respond JSON only with is_valid, feedback as keys.
-    STRICTLY FLOW THE JSON STRUCTURE. ONLY GIVE JSON OUTPUT
+    STRICTLY FLOW THE VALID JSON STRUCTURE. ONLY GIVE JSON OUTPUT
     """
     parser = StrOutputParser()
 

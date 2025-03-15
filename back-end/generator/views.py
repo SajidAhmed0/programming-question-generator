@@ -15,8 +15,14 @@ from .coding_validator import validate_coding_sandboxed
 from .serializers import ProgrammingQuestionSerializer
 
 class GeneratorView(APIView):
-    def get(self, request):
-        question = generate_programming_question("recursion", 'coding', 'medium')
+    def post(self, request):
+        body = request.data
+        topic = body.get('topic')
+        type = body.get('type')
+        difficulty = body.get('difficulty')
+        language = body.get('language')
+
+        question = generate_programming_question(topic, type, difficulty, language)
 
         if question.question_type == 'mcq':
             valid = validate_mcq(question)
