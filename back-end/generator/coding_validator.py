@@ -5,7 +5,7 @@ import execjs
 import subprocess
 import tempfile
 
-def execute_code_snippet_java(java_code):
+def execute_code_snippet_java(java_code, result_queue):
     try:
         # Create a temporary directory to store the Java file
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -25,7 +25,8 @@ def execute_code_snippet_java(java_code):
 
             # Check if there were compilation errors
             if compile_process.returncode != 0:
-                return {"is_valid": False, "feedback": compile_process.stderr}
+                # return {"is_valid": False, "feedback": compile_process.stderr}
+                result_queue.put({"is_valid": False, "feedback": compile_process.stderr})
 
             # Run the compiled Java code using java
             class_name = "Main"  # Assuming the class name is Main
@@ -37,14 +38,17 @@ def execute_code_snippet_java(java_code):
 
             # Return the output or error
             if run_process.returncode == 0:
-                return {"is_valid": True, "feedback": run_process.stdout}
+                # return {"is_valid": True, "feedback": run_process.stdout}
+                result_queue.put({"is_valid": True, "feedback": run_process.stdout})
             else:
-                return {"is_valid": False, "feedback": run_process.stderr}
+                # return {"is_valid": False, "feedback": run_process.stderr}
+                result_queue.put({"is_valid": False, "feedback": run_process.stderr})
 
     except Exception as e:
-        return {"is_valid": False, "feedback": str(e)}
+        # return {"is_valid": False, "feedback": str(e)}
+        result_queue.put({"is_valid": False, "feedback": str(e)})
 
-def execute_code_snippet_javascript(code):
+def execute_code_snippet_javascript(code, result_queue):
     try:
         # Create a Node.js runtime environment
         ctx = execjs.compile("""
@@ -53,9 +57,11 @@ def execute_code_snippet_javascript(code):
         }
         """)
         result = ctx.call("run", code)
-        return {"is_valid": True, "feedback": result}
+        # return {"is_valid": True, "feedback": result}
+        result_queue.put({"is_valid": True, "feedback": result})
     except Exception as e:
-        return {"is_valid": False, "feedback": str(e)}
+        # return {"is_valid": False, "feedback": str(e)}
+        result_queue.put({"is_valid": False, "feedback": str(e)})
 
 def execute_code_snippet_python(code_snippet, result_queue):
     """
@@ -79,9 +85,9 @@ def validate_coding_sandboxed(code_snippet, language, timeout=2):
     if language == 'python':
         process = multiprocessing.Process(target=execute_code_snippet_python, args=(code_snippet, result_queue))
     elif language == 'javascript':
-        process = multiprocessing.Process(target=execute_code_snippet_javascript, args=(code_snippet))
+        process = multiprocessing.Process(target=execute_code_snippet_javascript, args=(code_snippet, result_queue))
     elif language == 'java':
-        process = multiprocessing.Process(target=execute_code_snippet_java, args=(code_snippet))
+        process = multiprocessing.Process(target=execute_code_snippet_java, args=(code_snippet, result_queue))
 
     # Start the child process
     process.start()
