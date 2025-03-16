@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     # Custom apps
     'generator',
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -85,6 +86,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'mysql.connector.django',
+#         'NAME': 'question',
+#         'USER': 'root',
+#         'PASSWORD': 'sajid205',
+#         'HOST':'localhost',
+#         'PORT':'3306',
+#     }
+# }
 
 
 # Password validation

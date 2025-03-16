@@ -13,14 +13,57 @@ from .automatic_validation import validate_mcq_with_llm, validate_short_answer_w
 from .coding_validator import validate_coding_sandboxed
 
 from .serializers import ProgrammingQuestionSerializer
+from .models import ProgrammingQuestion
+
+class QuestionListView(APIView):
+    def get(self, request, user_id):
+        language = request.GET.get('language', '')
+        question_type = request.GET.get('question_type', '')
+        difficulty = request.GET.get('difficulty', '')
+
+        if language == '':
+            language = None
+
+        if question_type == '':
+            question_type = None
+
+        if difficulty == '':
+            difficulty = None
+
+        if language is None and question_type is None:
+            if difficulty is None:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id)
+            else:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, difficulty=difficulty)
+        elif language is not None and question_type is None:
+            if difficulty is None:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language)
+            else:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language, difficulty=difficulty)
+        elif language is None and question_type is not None:
+            if difficulty is None:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, question_type=question_type)
+            else:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, question_type=question_type, difficulty=difficulty)
+        else:
+            if difficulty is None:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language, question_type=question_type)
+            else:
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language,
+                                                               question_type=question_type, difficulty=difficulty)
+
+        serializer = ProgrammingQuestionSerializer(questions, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class GeneratorView(APIView):
-    def post(self, request):
+    def post(self, request, user_id):
         body = request.data
         topic = body.get('topic')
         type = body.get('type')
         difficulty = body.get('difficulty')
         language = body.get('language')
+
 
         question = generate_programming_question(topic, type, difficulty, language)
 
@@ -73,6 +116,8 @@ class GeneratorView(APIView):
             else:
                 feedback = valid['feedback']
                 print(f"{feedback}")
+        question.user_id = user_id
+        question.save()
 
         serializer = ProgrammingQuestionSerializer(question)
 

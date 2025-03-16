@@ -17,6 +17,7 @@ class ProgrammingQuestion(models.Model):
     last_failure_reason = models.TextField(blank=True, null=True)  # Failure reason
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user_id = models.CharField(max_length=255, default='1')
 
     def __str__(self):
         return self.title
