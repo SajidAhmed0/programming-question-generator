@@ -42,6 +42,10 @@
     border-radius: 6px;
     background-color: #f8f8f8;
   }
+  .question-item:hover {
+    background: #eeeeee;
+    cursor: pointer;
+  }
   
   .question-title {
     font-weight: bold;

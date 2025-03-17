@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from './QuestionList.module.css';
+import QuestionItem from "./QuestionItem";
+import QuestionModal from "./QuestionModal";
 
 function QuestionList({ questions, setFilters }) {
+    const [selectedQuestion, setSelectedQuestion] = useState(null);
+
     const handleFilterChange = (e) => {
       setFilters((prevFilters) => ({
         ...prevFilters,
@@ -39,7 +43,7 @@ function QuestionList({ questions, setFilters }) {
           <div className={styles["question-list"]}>
             {questions.length > 0 ? (
               questions.map((q, index) => (
-                <div key={index} className={styles["question-item"]}>
+                <div key={index} className={styles["question-item"]} onClick={() => setSelectedQuestion(q)}>
                   <div className={styles["question-meta"]}>
                     <span className={`${styles["question-type"]} ${styles[q.question_type]}`}>
                     {q.question_type.replace("-", " ")}
@@ -61,6 +65,17 @@ function QuestionList({ questions, setFilters }) {
               <p className={styles["no-questions"]}>No questions found.</p>
             )}
           </div>
+          {/* Modal for Selected Question
+      {selectedQuestion && (
+        <div className={styles.modal} onClick={() => setSelectedQuestion(null)}>
+          <div className={styles["modal-content"]} onClick={(e) => e.stopPropagation()}>
+            <button className={styles["close-button"]} onClick={() => setSelectedQuestion(null)}>×</button>
+            <QuestionItem question={selectedQuestion} />
+          </div>
+        </div>
+      )} */}
+      {/* Modal */}
+      {selectedQuestion && <QuestionModal question={selectedQuestion} onClose={() => setSelectedQuestion(null)} />}
         </div>
       );
   
