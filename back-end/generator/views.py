@@ -18,39 +18,39 @@ from .models import ProgrammingQuestion
 class QuestionListView(APIView):
     def get(self, request, user_id):
         language = request.GET.get('language', '')
-        question_type = request.GET.get('question_type', '')
+        type = request.GET.get('type', '')
         difficulty = request.GET.get('difficulty', '')
 
         if language == '':
             language = None
 
-        if question_type == '':
-            question_type = None
+        if type == '':
+            type = None
 
         if difficulty == '':
             difficulty = None
 
-        if language is None and question_type is None:
+        if language is None and type is None:
             if difficulty is None:
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id)
             else:
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id, difficulty=difficulty)
-        elif language is not None and question_type is None:
+        elif language is not None and type is None:
             if difficulty is None:
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language)
             else:
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language, difficulty=difficulty)
-        elif language is None and question_type is not None:
+        elif language is None and type is not None:
             if difficulty is None:
-                questions = ProgrammingQuestion.objects.filter(user_id=user_id, question_type=question_type)
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, question_type=type)
             else:
-                questions = ProgrammingQuestion.objects.filter(user_id=user_id, question_type=question_type, difficulty=difficulty)
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, question_type=type, difficulty=difficulty)
         else:
             if difficulty is None:
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language, question_type=question_type)
             else:
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language,
-                                                               question_type=question_type, difficulty=difficulty)
+                                                               question_type=type, difficulty=difficulty)
 
         serializer = ProgrammingQuestionSerializer(questions, many=True)
 
