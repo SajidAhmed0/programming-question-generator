@@ -14,6 +14,22 @@ from .coding_validator import validate_coding_sandboxed
 
 from .serializers import ProgrammingQuestionSerializer
 from .models import ProgrammingQuestion
+import os
+from dotenv import load_dotenv
+import requests
+from pinecone import Pinecone
+
+load_dotenv()
+
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+HUGGINGFACEHUB_API_URL = os.getenv("HUGGINGFACEHUB_API_URL")
+
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
+
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index = pc.Index(PINECONE_INDEX_NAME)
 
 class QuestionListView(APIView):
     def get(self, request, user_id):
@@ -47,7 +63,7 @@ class QuestionListView(APIView):
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id, question_type=type, difficulty=difficulty)
         else:
             if difficulty is None:
-                questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language, question_type=question_type)
+                questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language, question_type=type)
             else:
                 questions = ProgrammingQuestion.objects.filter(user_id=user_id, language=language,
                                                                question_type=type, difficulty=difficulty)
@@ -65,7 +81,7 @@ class GeneratorView(APIView):
         language = body.get('language')
 
 
-        question = generate_programming_question(topic, type, difficulty, language)
+        question = generate_programming_question(topic, type, difficulty, language, user_id)
 
         if question.question_type == 'mcq':
             valid = validate_mcq(question)
@@ -121,4 +137,53 @@ class GeneratorView(APIView):
 
         serializer = ProgrammingQuestionSerializer(question)
 
+        # Store in Pinecone
+        store_in_pinecone(question.user_id, topic, question)
+
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+def get_embedding(text):
+    headers = {"Authorization": f"Bearer {HUGGINGFACEHUB_API_TOKEN}"}
+
+    # Payload for the API request
+    payload = {
+        "inputs": text,
+        "options": {"wait_for_model": True}  # Wait if the model is loading
+    }
+    # Send the request
+    response = requests.post(HUGGINGFACEHUB_API_URL, headers=headers, json=payload)
+    # Get the embeddings
+    if response.status_code == 200:
+        embeddings = response.json()
+        return embeddings
+    else:
+        print("Error:", response.status_code, response.text)
+        return []
+
+def store_in_pinecone(user_id, topic, question_data):
+    """ Store the generated question in Pinecone with metadata. """
+    namespace = str(user_id)
+    print("NameSpace: " + namespace)
+    vector = get_embedding(question_data.description)
+    question_id =str(question_data.id)
+    metadata = {
+        "user_id": namespace,
+        "topic": topic,
+        "question": question_data.description,
+        "language": question_data.language,
+        "difficulty": question_data.difficulty,
+        "type": question_data.question_type
+    }
+
+    # index.upsert([(namespace, vector, metadata)])
+    # index.upsert([(namespace, vector, metadata)])
+    index.upsert(
+        vectors=[{
+            "id": question_id,
+            "values": vector,
+            "metadata": metadata
+        }],
+        namespace=namespace
+    )
+
+    print("Question stored in Pinecone.")

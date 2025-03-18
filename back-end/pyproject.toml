@@ -17,6 +17,8 @@ docker = "^7.1.0"
 pyexecjs = "^1.5.1"
 pymysql = "^1.1.1"
 django-cors-headers = "^4.7.0"
+tiktoken = "^0.9.0"
+pinecone = "^6.0.2"
 
 
 [build-system]
