@@ -8,9 +8,12 @@ import json
 load_dotenv()
 
 llm = ChatGroq(
-    model="mixtral-8x7b-32768",
+    model="mistral-saba-24b",
     temperature=0,
 )
+
+def clean_json_string(json_string):
+    return json_string.replace("```json", "").replace("```", "").strip()
 
 def validate_mcq_with_llm(question):
     question_text = question.description
@@ -36,6 +39,7 @@ def validate_mcq_with_llm(question):
     chain = llm | parser
 
     response = chain.invoke(prompt)
+    response = clean_json_string(response)
     print(response)
 
     # Replace invalid escape sequences

@@ -33,7 +33,7 @@ pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index(PINECONE_INDEX_NAME)
 
 llm = ChatGroq(
-    model="mixtral-8x7b-32768",
+    model="mistral-saba-24b",
     temperature=0,
 )
 
@@ -85,6 +85,9 @@ def retrieve_similar_questions(topic, language, difficulty, q_type, namespace, t
     similar_questions = [match["metadata"]["question"] for match in results["matches"]]
 
     return similar_questions[:top_k]
+
+def clean_json_string(json_string):
+    return json_string.replace("```json", "").replace("```", "").strip()
 
 def generate_programming_question(topic, type, difficulty, language, user_id):
     retriever_input = f"Generate questions about: {topic}"
@@ -192,6 +195,8 @@ def generate_programming_question(topic, type, difficulty, language, user_id):
     response = response.strip()  # Remove extra whitespace
     # Replace invalid escape sequences
     response = response.replace("\\_", "_")
+
+    response = clean_json_string(response)
 
     data = json.loads(response)
 
