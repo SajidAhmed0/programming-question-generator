@@ -1,0 +1,6 @@
+python-pptx 
+PyPDF2 
+openai 
+tqdm 
+pinecone-client 
+langchain
