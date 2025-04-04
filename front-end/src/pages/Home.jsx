@@ -3,6 +3,7 @@ import { useState } from "react";
 import { fetchQuestion } from "../apis/api";
 import QuestionItem from "../components/QuestionItem";
 import styles from "./Home.module.css";
+import { FaSpinner } from "react-icons/fa"; 
 
 function Home() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ function Home() {
     language: "python",
   });
   const [question, setQuestion] = useState(null);
+  const [loading, setLoading] = useState(false); 
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,15 +21,18 @@ function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); 
     try {
       const data = await fetchQuestion(formData);
       setQuestion(data);
     } catch (error) {
       alert("Failed to fetch question: " + error);
+    }finally {
+        setLoading(false); // Hide loading spinner after request completes
     }
   };
 
-  return (
+  return (<>
     <div className={styles["home-container"]}>
       <h2 className={styles.title}>Generate Programming Question</h2>
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -65,10 +70,15 @@ function Home() {
             </div>
         </div>
         
-        <button type="submit" className={styles.button}>Generate</button>
+        {/* <button type="submit" className={styles.button}>Generate</button> */}
+        <button type="submit" className={styles.button} disabled={loading}>
+          {loading ? <FaSpinner className={styles.spinner} /> : "Generate"}
+        </button>
       </form>
+      {loading && <div className={styles.loadingText}>Generating question...</div>}
       {question && <QuestionItem question={question} />}
     </div>
+    </>
   );
 }
 

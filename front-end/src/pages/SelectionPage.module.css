@@ -1,0 +1,87 @@
+/* General Styles */
+.container {
+    font-family: "Poppins", sans-serif;
+    text-align: center;
+    color: #333;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Hero Section */
+  .hero {
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    color: white;
+    padding: 100px 20px;
+    text-align: center;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .heroContent h1 {
+    font-size: 42px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .heroContent p {
+    font-size: 18px;
+    opacity: 0.9;
+  }
+  
+  /* Category Grid */
+  .gridContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 50px;
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  /* Category Cards */
+  .categoryCard {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    border: 3px solid transparent;
+    text-align: center;
+  }
+  
+  .categoryCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+    border-color: #6366f1;
+  }
+  
+  /* Icons */
+  .icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+    color: #6366f1;
+  }
+  
+  /* Descriptions */
+  .description {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+  }
+  
+  /* Footer */
+  .footer {
+    background: #1e293b;
+    color: white;
+    padding: 20px;
+    margin-top: 30px;
+    font-size: 14px;
+  }
+  

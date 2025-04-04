@@ -2,15 +2,26 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import History from "./pages/History";
+import HomePage from "./pages/HomePage";
+import SelectionPage from "./pages/SelectionPage";
+
+import Header from "./Header";
+import Footer from "./Footer";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 p-5">
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/history" element={<History />} />
-      </Routes>
+    <>
+      <Header />
+      <div style={{ minHeight: "80vh", paddingBottom: "50px" }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/generate" element={<Home />} />
+          <Route path="/questions" element={<History />} />
+          <Route path="/selection" element={<SelectionPage />} />
+        </Routes>
     </div>
+      <Footer />
+      </>
   );
 }
 
