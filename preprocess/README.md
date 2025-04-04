@@ -1,5 +1,5 @@
 create virtual environment for the program:
-`python -m venv .env`
+`python3 -m venv .env`
 
 activate the virtual environment:
 `source .env/bin/activate`
