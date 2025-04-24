@@ -131,6 +131,14 @@ class GeneratorView(APIView):
                 feedback = valid['feedback']
                 print(f"{feedback}")
         question.user_id = user_id
+
+        if question.question_type == 'mcq':
+            question.allocated_marks = 1
+        elif question.question_type == 'short-answer':
+            question.allocated_marks = 3
+        elif question.question_type == 'coding':
+            question.allocated_marks = 5
+
         question.save()
 
         serializer = ProgrammingQuestionSerializer(question)
