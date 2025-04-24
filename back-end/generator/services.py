@@ -210,19 +210,41 @@ def generate_programming_question(type, difficulty, user_id, module):
         Only return a JSON object as output.
         {few_shot_short_answer}
     """
+    programming_language = 'python'
+    instruction = ""
+    if module == "Object-Oriented Programming - IT2030":
+        programming_language = 'java'
+        instruction = """
+            Java: Must have public class Main.
+            IMPORTANT:
+                - If programming_language is "java", the answer MUST contain `public class Main`. No exceptions.
+                - If not included, your response will be rejected. Include `public class Main` EXACTLY as shown.
+            """
+    elif module == "Data Structures & Algorithms - IT2070":
+        programming_language = 'java, python choose one according to context'
+        instruction = """
+            Java: Must have public class Main.
+            IMPORTANT:
+                - If programming_language is "java", the answer MUST contain `public class Main`. No exceptions.
+                - If not included, your response will be rejected. Include `public class Main` EXACTLY as shown.
+            """
+    elif module == "Object Oriented Concepts - IT1050":
+        programming_language = 'cpp'
+        instruction = """C++: Must include return 0; in main()."""
+    elif module == "Introduction to Programming - IT1010":
+        programming_language = 'c'
+    elif module == "Internet And Web Technologies- IT1100":
+        programming_language = 'javascript, php choose one according to context'
+
+
 
     coding_system = f"""
         You are an expert in programming question generation. You must create ONE question about the given context, following the coding type and difficulty.
         Your output should STRICTLY be a valid JSON object. Generate topic for question. code should we runnable without any error.
         
-        Java: Must have public class Main.
-        C++: Must include return 0; in main().
+        - For `coding`type, use keys: question, answer, topic, programming_language({programming_language}).
         
-        - For `coding`type, use keys: question, answer, topic, programming_language(pick from these java, javascript, python, php, c, cpp).
-        
-        IMPORTANT:
-        - If programming_language is "java", the answer MUST contain `public class Main`. No exceptions.
-        - If not included, your response will be rejected. Include `public class Main` EXACTLY as shown.
+        {instruction}
 
         Only return a JSON object as output.
         {few_shot_coding}
