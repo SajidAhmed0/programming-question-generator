@@ -136,21 +136,69 @@ def clean_json_string(json_string):
 def generate_programming_question(type, difficulty, user_id, module):
     retrieved_context = retrieve_random_vector(module).metadata['text']
 
-    # Retrieve top 5 similar questions
-    # retrieved_questions = retrieve_similar_questions(topic, language, difficulty, type, user_id)
-    # questions_string = '\n'.join(str(q) for q in retrieved_questions)
-    # print("Emitted Questions: " + questions_string)
+    few_shot_mcq = """
+    Example:
+    {{
+      "question": "What does the `len()` function do in Python?",
+      "answers": ["Returns the number of items in an object", "Calculates the sum of numbers", "Sorts a list", "Deletes an item from a list"],
+      "correct_answer": "Returns the number of items in an object",
+      "topic": "Python built-in functions"
+    }}
+    """
 
-    # questions_string = ''
+    few_shot_short_answer = """
+    Example:
+    {{
+      "question": "Explain the purpose of the 'final' keyword in Java.",
+      "answer": "It is used to declare constants, prevent method overriding, or inheritance.",
+      "topic": "Java keywords"
+    }}
+    """
+
+    few_shot_coding = r"""
+        Examples:
+        1.
+        {{
+          "question": "Write a Java program to check if a number is even or odd.",
+          "answer": "public class Main {{\n    public static void main(String[] args) {{\n        int num = 10;\n        if(num % 2 == 0)\n            System.out.println(\"Even\");\n        else\n            System.out.println(\"Odd\");\n    }}\n}}",
+          "programming_language": "java",
+          "topic": "Java conditionals"
+        }}
+
+        2.
+        {{
+          "question": "Write a C++ program to find the sum of two numbers.",
+          "answer": "#include <iostream>\nusing namespace std;\nint main() {{\n    int a = 5, b = 3;\n    cout << \"Sum: \" << a + b;\n    return 0;\n}}",
+          "programming_language": "cpp",
+          "topic": "C++ basic arithmetic"
+        }}
+
+        3.
+        {{
+          "question": "Create a Java program that prints numbers from 1 to 5 using a loop.",
+          "answer": "public class Main {{\n    public static void main(String[] args) {{\n        for(int i = 1; i <= 5; i++) {{\n            System.out.println(i);\n        }}\n    }}\n}}",
+          "programming_language": "java",
+          "topic": "Java loops"
+        }}
+
+        4.
+        {{
+          "question": "Create a C++ program to calculate the factorial of a number using a loop.",
+          "answer": "#include <iostream>\nusing namespace std;\nint main() {{\n    int n = 5, factorial = 1;\n    for(int i = 1; i <= n; ++i) {{\n        factorial *= i;\n    }}\n    cout << \"Factorial: \" << factorial;\n    return 0;\n}}",
+          "programming_language": "cpp",
+          "topic": "C++ loops"
+        }}
+    """
 
 
     mcq_system = f"""
         You are an expert in programming question generation. You must create ONE question about the given context, following the mcq type and difficulty.
         Your output should STRICTLY be a valid JSON object. Generate topic for question.
 
-        - For `mcq` type, use keys: question, answers (list), correct_answer, topic.
+        - For `mcq` type, use keys: question, answers (list of 4), correct_answer, topic.
 
         Only return a JSON object as output.
+        {few_shot_mcq}
     """
 
     short_answer_system= f"""
@@ -160,20 +208,23 @@ def generate_programming_question(type, difficulty, user_id, module):
         - For `short-answer`, use keys: question, answer, topic.
 
         Only return a JSON object as output.
+        {few_shot_short_answer}
     """
 
     coding_system = f"""
         You are an expert in programming question generation. You must create ONE question about the given context, following the coding type and difficulty.
         Your output should STRICTLY be a valid JSON object. Generate topic for question. code should we runnable without any error.
+        
         Java: Must have public class Main.
         C++: Must include return 0; in main().
         
         - For `coding`type, use keys: question, answer, topic, programming_language(pick from these java, javascript, python, php, c, cpp).
 
         Only return a JSON object as output.
+        {few_shot_coding}
     """
 
-    human = f"""        
+    human = r"""        
         Context:
         {retrieved_context}
         
