@@ -36,7 +36,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 llm = ChatOpenAI(
     model="gpt-4o-mini",
-    temperature=0,
+    temperature=0.5,
     api_key=OPENAI_API_KEY,
 )
 
@@ -219,6 +219,10 @@ def generate_programming_question(type, difficulty, user_id, module):
         C++: Must include return 0; in main().
         
         - For `coding`type, use keys: question, answer, topic, programming_language(pick from these java, javascript, python, php, c, cpp).
+        
+        IMPORTANT:
+        - If programming_language is "java", the answer MUST contain `public class Main`. No exceptions.
+        - If not included, your response will be rejected. Include `public class Main` EXACTLY as shown.
 
         Only return a JSON object as output.
         {few_shot_coding}
