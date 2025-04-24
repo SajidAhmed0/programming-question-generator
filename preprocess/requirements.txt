@@ -2,5 +2,8 @@ python-pptx
 PyPDF2 
 openai 
 tqdm 
-pinecone-client 
+pinecone
 langchain
+python-dotenv
+langchain-openai
+tiktoken
