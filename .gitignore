@@ -123,3 +123,4 @@ celerybeat-schedule
 .ropeproject
 
 db.sqlite3
+API_KEY 2.txt
