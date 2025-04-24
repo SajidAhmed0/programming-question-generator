@@ -19,6 +19,7 @@ pymysql = "^1.1.1"
 django-cors-headers = "^4.7.0"
 tiktoken = "^0.9.0"
 pinecone = "^6.0.2"
+langchain-openai = "^0.3.14"
 
 
 [build-system]
