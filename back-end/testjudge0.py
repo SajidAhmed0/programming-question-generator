@@ -1,90 +1,60 @@
 import requests
 import time
-import json
+from dotenv import load_dotenv
+import os
 
-# Judge0 API URL
-JUDGE0_URL = 'http://localhost:2358/submissions'
+# Load environment variables (store API keys securely)
+load_dotenv()
 
-def run_code(language, code):
-    """
-    Run the given code snippet in the specified language using the Judge0 API.
-    """
-    # Define supported languages
-    languages = {
-        "python": 71,  # Python 3
-        "javascript": 63,  # Node.js
-        "java": 62  # Java
+JUDGE0_API_URL = "https://judge0-ce.p.rapidapi.com"
+RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")  # Only if using RapidAPI
+
+
+def execute_code(code, language_id=71):  # Default: Python (71)
+    headers = {
+        "Content-Type": "application/json",
+        "X-RapidAPI-Key": RAPIDAPI_KEY,  # Only for RapidAPI
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
     }
 
-    # Check if the language is supported
-    if language not in languages:
-        return {"is_valid": False, "output": "Language not supported"}
-
-    # Prepare the payload for the request
-    payload = {
+    data = {
         "source_code": code,
-        "language_id": languages[language],
-        "stdin": "",  # Optionally, provide input for the program
-        "expected_output": "",  # Optionally, provide expected output for comparison
-        "cpu_time_limit": 2,  # Execution time limit in seconds
-        "memory_limit": 128000  # Memory limit in KB (128MB)
+        "language_id": language_id,
     }
 
-    # Submit the code to Judge0 API
-    response = requests.post(JUDGE0_URL, data=json.dumps(payload), headers={'Content-Type': 'application/json'})
+    # Submit the code for execution
+    submission_response = requests.post(
+        f"{JUDGE0_API_URL}/submissions?base64_encoded=false&wait=false",
+        json=data,
+        headers=headers
+    )
+    submission_id = submission_response.json()["token"]
 
-    if response.status_code != 200:
-        return {"is_valid": False, "output": "Failed to submit code"}
-
-    # Extract the token from the response
-    submission_token = response.json()['token']
-
-    # Poll the status of the submission
-    while True:
-        result_url = f'{JUDGE0_URL}/{submission_token}'
-        result_response = requests.get(result_url)
-
-        if result_response.status_code != 200:
-            return {"is_valid": False, "output": "Failed to retrieve result"}
-
+    # Poll for the result (since Judge0 is async)
+    result = None
+    for _ in range(10):  # Retry for 10 seconds
+        result_response = requests.get(
+            f"{JUDGE0_API_URL}/submissions/{submission_id}",
+            headers=headers
+        )
         result = result_response.json()
-
-        if result['status']['id'] != 1:  # ID 1 means "Processing", 2 means "Finished"
+        if result["status"]["id"] not in [1, 2]:  # 1=In Queue, 2=Processing
             break
+        time.sleep(1)  # Wait before checking again
 
-        time.sleep(1)  # Wait for a second before polling again
+    return result
 
-    # Check if the code execution was successful
-    if result['status']['id'] == 3:  # ID 3 means "Accepted"
-        return {"is_valid": True, "output": result['stdout']}
-    else:
-        return {"is_valid": False, "output": result['stderr']}
 
-# Example usage
-python_code = """
-x = 10
-y = 20
-print(x + y)
+# Example Usage
+if __name__ == "__main__":
+    python_code = """
+print("Hello, Judge0!")
+a = 5
+b = 10
+print(a + b
 """
-js_code = """
-const x = 10;
-const y = 20;
-console.log(x + y);
-"""
-java_code = """
-public class Test {
-    public static void main(String[] args) {
-        System.out.println(10 + 20);
-    }
-}
-"""
-
-# Running code snippets
-result = run_code('python', python_code)
-print("Python Result:", result)
-
-result = run_code('javascript', js_code)
-print("JavaScript Result:", result)
-
-result = run_code('java', java_code)
-print("Java Result:", result)
+    execution_result = execute_code(python_code)
+    print("Output:", execution_result.get("stdout"))
+    print("Error:", execution_result.get("stderr"))
+    print("Status:", execution_result.get("status", {}).get("description"))
+    print(execution_result)

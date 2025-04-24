@@ -1,36 +1,53 @@
-import requests
-
 import os
+import random
+from pinecone import Pinecone
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-HUGGINGFACEHUB_API_URL = os.getenv("HUGGINGFACEHUB_API_URL")
+# Initialize Pinecone
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+index_name = os.getenv("PINECONE_INDEX_NAME")
+index = pc.Index(index_name)
 
-# Replace with your Hugging Face API token
-API_TOKEN = HUGGINGFACEHUB_API_TOKEN
-API_URL = HUGGINGFACEHUB_API_URL
+def retrieve_random_vector(module_name: str):
+    try:
+        # Get index stats to find how many vectors are in the namespace
+        stats = index.describe_index_stats()
+        namespaces = stats.namespaces
 
-# Input text
-text = "This is a sample sentence."
+        if module_name not in namespaces:
+            print(f"❌ Module '{module_name}' not found in Pinecone.")
+            return None
 
-# Headers for authentication
-headers = {"Authorization": f"Bearer {API_TOKEN}"}
+        total_vectors = namespaces[module_name].vector_count
+        if total_vectors == 0:
+            print(f"⚠️ No vectors found in module '{module_name}'.")
+            return None
 
-# Payload for the API request
-payload = {
-    "inputs": text,
-    "options": {"wait_for_model": True}  # Wait if the model is loading
-}
+        # Pick a random index and construct the corresponding vector ID
+        random_index = random.randint(0, total_vectors - 1)
+        vector_id = f"{module_name}-{random_index}"
 
-# Send the request
-response = requests.post(API_URL, headers=headers, json=payload)
+        # Fetch the vector from Pinecone
+        result = index.fetch(ids=[vector_id], namespace=module_name)
 
-# Get the embeddings
-if response.status_code == 200:
-    embeddings = response.json()
-    print("Embeddings:", embeddings)
-    print(len(embeddings))
-else:
-    print("Error:", response.status_code, response.text)
+        if vector_id in result.vectors:
+            vector_data = result.vectors[vector_id]
+            print(f"✅ Retrieved vector ID: {vector_id}")
+            print(f"📄 Metadata: {vector_data.metadata}")
+            print(f"📈 Vector length: {len(vector_data.values)}")
+            return vector_data
+        else:
+            print(f"❌ Vector ID '{vector_id}' not found.")
+            return None
+
+    except Exception as e:
+        print(f"🔥 Error retrieving vector: {e}")
+        return None
+
+# Example usage
+if __name__ == "__main__":
+    module = "Object-Oriented Programming - IT2030"  # Update this as needed
+    retrieve_random_vector(module)
