@@ -44,7 +44,8 @@ INSTALLED_APPS = [
 
     # Custom apps
     'generator',
-    'user'
+    'user',
+    'exam'
 ]
 
 MIDDLEWARE = [
