@@ -2,9 +2,9 @@ from django.db import models
 
 
 class ProgrammingQuestion(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.TextField()
     description = models.TextField()
-    language = models.CharField(max_length=50, choices=[('python', 'Python'), ('javascript', 'Java Script'), ('java', 'Java')])
+    language = models.CharField(max_length=50, choices=[('python', 'Python'), ('javascript', 'Java Script'), ('java', 'Java'), ('cpp', 'Cpp'), ('c', 'C'), ('php', 'PHP')])
     difficulty = models.CharField(max_length=50, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')])
     question_type = models.CharField(max_length=50, choices=[('mcq', 'MCQ'), ('short-answer', 'Short Answer'), ('coding', 'Coding')])
     code_snippet = models.TextField(blank=True, null=True)  # For coding questions
@@ -18,6 +18,11 @@ class ProgrammingQuestion(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.CharField(max_length=255, default='1')
+    module = models.CharField(max_length=255, blank=True, null=True)
+    exam_id = models.CharField(max_length=255, default='1')
+    allocated_marks = models.IntegerField(default=0)
+    student_marks = models.IntegerField(default=0)
+    student_answer = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.title
