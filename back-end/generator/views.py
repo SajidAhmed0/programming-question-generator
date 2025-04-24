@@ -75,13 +75,12 @@ class QuestionListView(APIView):
 class GeneratorView(APIView):
     def post(self, request, user_id):
         body = request.data
-        topic = body.get('topic')
         type = body.get('type')
         difficulty = body.get('difficulty')
-        language = body.get('language')
+        module = body.get('module')
 
 
-        question = generate_programming_question(topic, type, difficulty, language, user_id)
+        question = generate_programming_question(type, difficulty, user_id, module)
 
         if question.question_type == 'mcq':
             valid = validate_mcq(question)
@@ -122,7 +121,6 @@ class GeneratorView(APIView):
                 print(f"{feedback}")
 
         elif question.question_type == 'coding':
-            # valid = validate_coding(question)
             valid = validate_coding_sandboxed(question.code_snippet, question.language)
 
             if valid['is_valid']:
@@ -138,9 +136,80 @@ class GeneratorView(APIView):
         serializer = ProgrammingQuestionSerializer(question)
 
         # Store in Pinecone
-        store_in_pinecone(question.user_id, topic, question)
+        # store_in_pinecone(question.user_id, topic, question)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+# class GeneratorView(APIView):
+#     def post(self, request, user_id):
+#         body = request.data
+#         topic = body.get('topic')
+#         type = body.get('type')
+#         difficulty = body.get('difficulty')
+#         language = body.get('language')
+#         module = "Object-Oriented Programming - IT2030"
+#
+#
+#         question = generate_programming_question(topic, type, difficulty, language, user_id, module)
+#
+#         if question.question_type == 'mcq':
+#             valid = validate_mcq(question)
+#
+#             if valid['is_valid']:
+#                 feedback = valid['feedback']
+#                 print(f"{feedback}")
+#                 llm_valid = validate_mcq_with_llm(question)
+#
+#                 if llm_valid['is_valid']:
+#                     feedback = llm_valid['feedback']
+#                     print(f"{feedback}")
+#                     question.validated = True
+#                 else:
+#                     feedback = llm_valid['feedback']
+#                     print(f"{feedback}")
+#             else:
+#                 feedback = valid['feedback']
+#                 print(f"{feedback}")
+#
+#         elif question.question_type == 'short-answer':
+#             valid = validate_short_answer(question)
+#
+#             if valid['is_valid']:
+#                 feedback = valid['feedback']
+#                 print(f"{feedback}")
+#                 llm_valid = validate_short_answer_with_llm(question)
+#
+#                 if llm_valid['is_valid']:
+#                     feedback = llm_valid['feedback']
+#                     print(f"{feedback}")
+#                     question.validated = True
+#                 else:
+#                     feedback = llm_valid['feedback']
+#                     print(f"{feedback}")
+#             else:
+#                 feedback = valid['feedback']
+#                 print(f"{feedback}")
+#
+#         elif question.question_type == 'coding':
+#             # valid = validate_coding(question)
+#             valid = validate_coding_sandboxed(question.code_snippet, question.language)
+#
+#             if valid['is_valid']:
+#                 feedback = valid['feedback']
+#                 question.validated = True
+#                 print(f"{feedback}")
+#             else:
+#                 feedback = valid['feedback']
+#                 print(f"{feedback}")
+#         question.user_id = user_id
+#         question.save()
+#
+#         serializer = ProgrammingQuestionSerializer(question)
+#
+#         # Store in Pinecone
+#         # store_in_pinecone(question.user_id, topic, question)
+#
+#         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 def get_embedding(text):
     headers = {"Authorization": f"Bearer {HUGGINGFACEHUB_API_TOKEN}"}
