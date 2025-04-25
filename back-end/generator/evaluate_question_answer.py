@@ -114,61 +114,64 @@ def evaluate_question_answer(answer_question):
             Example:
             1.
             {{
-              "is_correct": true ,
+              "is_correct": true,
               "marks": 5,
-              "feedback": "your feedback here"
+              "feedback": "Excellent! Your answer is complete and syntactically correct."
             }}
-
+    
             2.
             {{
-              "is_correct": true ,
+              "is_correct": true,
               "marks": 3,
-              "feedback": "your feedback here"
+              "feedback": "Good attempt! Logic is mostly correct but has minor syntax or formatting issues."
             }}
-
+    
             3.
             {{
-              "is_correct": true ,
+              "is_correct": true,
               "marks": 1,
-              "feedback": "your feedback here"
+              "feedback": "The answer shows partial understanding but is incomplete or contains significant errors."
             }}
-
+    
             4.
             {{
-              "is_correct": false ,
+              "is_correct": false,
               "marks": 0,
-              "feedback": "your feedback here"
+              "feedback": "The answer is incorrect and does not meet the requirements of the question."
             }}
         """
 
         system = f"""
-            You are an expert evaluator. You must evaluate given coding question with real answer and user answer, And give marks according to allocated marks.
-            Your output should STRICTLY be a valid JSON object.
-
-            - For output, use keys: is_correct(true or false), marks (0 - 5), and feedback.
-            
-            Requirements:
-            1. Confirm if the answer is correct.
-            2. Give marks according to student answer.
-            3. Give feedback for student answer.
-            4. If answer is wrong then marks is 0.
-            5. If answer is some what correct and there is some syntax error or run time error adjust marks accordingly (1 - 5).
-            6. If answer is some what correct always reduce the marks instead of making it as incorrect. if marks is greater than 0 then is_correct = true
-
-            Only return a JSON object as output.
+            You are an expert programming evaluator. Your task is to evaluate the student's coding answer based on the provided question and correct answer.
+            The student's answer is not required to be executed. Only check and evaluate concept.
+            Return your evaluation STRICTLY as a valid JSON object.
+    
+            Keys to include:
+            - "is_correct": true or false (true if the answer is fully or partially correct, false only if completely wrong)
+            - "marks": integer between 0 to 5
+            - "feedback": specific and constructive feedback
+    
+            Evaluation Rules:
+            1. If the answer is entirely incorrect or does not show understanding, assign 0 marks and set is_correct to false.
+            2. If the answer shows partial correctness (e.g., correct logic but syntax error or incomplete), assign marks from 1 to 4 and set is_correct to true.
+            3. Only assign 5 marks if the answer is correct, complete, and syntactically valid.
+            4. Always provide helpful feedback explaining your assessment.
+            5. If marks > 0, is_correct must be true.
+    
+            Only return the JSON object as output.
             {few_shot_coding}
         """
 
         human = r"""        
             Question:
             {question_description}
-
+    
             Actual Answer:
             {expected_answers}
-
+    
             Student Answer:
             {student_answer}
-
+    
             Allocated Marks:
             {allocated_marks}
         """
