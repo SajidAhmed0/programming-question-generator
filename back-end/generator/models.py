@@ -24,6 +24,8 @@ class ProgrammingQuestion(models.Model):
     student_marks = models.IntegerField(default=0)
     student_answer = models.TextField(blank=True, null=True)
     answered = models.BooleanField(default=False)
+    is_correct = models.BooleanField(default=False)
+    answer_feedback = models.TextField(default='')
 
     def __str__(self):
         return self.title
