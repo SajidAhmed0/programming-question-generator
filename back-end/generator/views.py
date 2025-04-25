@@ -12,6 +12,8 @@ from .short_answer_validator import validate_short_answer
 from .automatic_validation import validate_mcq_with_llm, validate_short_answer_with_llm
 from .coding_validator import validate_coding_sandboxed
 
+from .evaluate_question_answer import evaluate_question_answer
+
 from .serializers import ProgrammingQuestionSerializer
 from .models import ProgrammingQuestion
 import os
@@ -71,6 +73,41 @@ class QuestionListView(APIView):
         serializer = ProgrammingQuestionSerializer(questions, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+class QuestionAnswerView(APIView):
+    def post(self, request, user_id, question_id):
+        body = request.data
+        answer_question = body.get('question')
+        stored_question = ProgrammingQuestion.objects.filter(id=question_id).first()
+
+        if not stored_question:
+            return Response(
+                {"error": "Exam not found for this user"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        is_answered = answer_question['answered']
+
+        if is_answered:
+
+            result = evaluate_question_answer(answer_question=answer_question)
+
+            stored_question.answer_feedback = result["feedback"]
+            stored_question.is_correct = result["is_correct"]
+            stored_question.answered = is_answered
+            stored_question.student_marks = result["marks"]
+            stored_question.student_answer = answer_question["student_answer"]
+
+            stored_question.save()
+
+            serializer = ProgrammingQuestionSerializer(stored_question)
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        else:
+            return Response(data={"error: Questions should be answered"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 class GeneratorView(APIView):
     def post(self, request, user_id):
