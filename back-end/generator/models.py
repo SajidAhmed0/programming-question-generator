@@ -23,6 +23,7 @@ class ProgrammingQuestion(models.Model):
     allocated_marks = models.IntegerField(default=0)
     student_marks = models.IntegerField(default=0)
     student_answer = models.TextField(blank=True, null=True)
+    answered = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
