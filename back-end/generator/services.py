@@ -300,6 +300,8 @@ def generate_programming_question(type, difficulty, user_id, module):
         question.description = question_data['question']
         question.code_snippet = question_data['answer']
 
+    question.module = module
+
     print(question)
     return question
 
