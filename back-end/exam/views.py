@@ -9,6 +9,7 @@ from generator.models import ProgrammingQuestion
 from generator.serializers import ProgrammingQuestionSerializer
 
 from generator.question_generation_for_exam import generate_programming_question_for_exam
+from generator.validate_answer_question_for_exam import validate_answer_question_for_exam
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -114,4 +115,58 @@ class ExamAnswerView(APIView):
     def post(self, request, user_id, exam_id):
         body = request.data
 
-        module = body.get('module')
+        exam = body.get('exam')
+        answer_questions = body.get('questions')
+
+        stored_exam = Exam.objects.filter(id=exam_id).first()
+
+        if user_id != int(exam['user_id']):
+            return Response(
+                {"error": "Exam is not belong to this user"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not stored_exam:
+            return Response(
+                {"error": "Exam not found for this user"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        is_completed = exam['status']
+
+        if is_completed:
+            validated_questions = validate_answer_all_questions(answer_questions)
+
+            total_student_marks = 0
+
+            for validated_question in validated_questions:
+                total_student_marks += validated_question['student_marks']
+
+            stored_exam.student_marks = total_student_marks
+
+            stored_exam.save()
+
+            serializer = ExamSerializer(stored_exam)
+
+            return Response(data={"exam": serializer.data, "questions": validated_questions}, status=status.HTTP_200_OK)
+
+        else:
+            return Response(data={"error: Exam should be completed"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def validate_answer_all_questions(questions):
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [
+            executor.submit(safe_validate_answer, answer_question)
+            for answer_question in questions
+        ]
+        return [f.result() for f in futures]
+
+def safe_validate_answer(answer_question, retries=3):
+    for _ in range(retries):
+        try:
+            return validate_answer_question_for_exam(answer_question)
+        except Exception as e:
+            continue
+    return {"error": f"Failed to evaluate {answer_question['id']} question"}
