@@ -82,7 +82,7 @@ class QuestionAnswerView(APIView):
 
         if not stored_question:
             return Response(
-                {"error": "Exam not found for this user"},
+                {"error": "Question is not found for this user"},
                 status=status.HTTP_404_NOT_FOUND
             )
         is_answered = answer_question['answered']
