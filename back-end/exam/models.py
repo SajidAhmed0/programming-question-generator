@@ -8,6 +8,7 @@ class Exam(models.Model):
     status = models.BooleanField(default=False)
     total_marks = models.IntegerField(default=0)
     student_marks = models.IntegerField(default=0)
+    difficulty = models.CharField(max_length=50, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')], default='easy')
 
     def __str__(self):
         return self.module

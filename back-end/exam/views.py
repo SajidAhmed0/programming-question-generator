@@ -36,6 +36,7 @@ class ExamView(APIView):
 class ExamListView(APIView):
     def get(self, request, user_id):
         module = request.query_params.get('module')
+        print(module)
         status_param = request.query_params.get('status')
 
         if module is None:
@@ -71,7 +72,7 @@ class ExamListView(APIView):
 
         # Before creating exam, should create UserDifficulty for user_id, module
         # This will either get the existing record or create a new one
-        obj, created = UserDifficulty.objects.get_or_create(
+        user_difficulty, created = UserDifficulty.objects.get_or_create(
             user_id=user_id,
             module=module,
             defaults={
@@ -83,13 +84,15 @@ class ExamListView(APIView):
         if created:
             print(f"Created new record for {user_id} - {module}")
         else:
-            print(f"Record already exists with difficulty: {obj.difficulty}")
+            print(f"Record already exists with difficulty: {user_difficulty.difficulty}")
+
+        exam_difficulty = user_difficulty.difficulty
 
         exam = Exam(module=module, user_id=user_id, status=False)
 
         exam.save()
 
-        questions = generate_all_questions(difficulty='easy', user_id=user_id, module=module, exam_id=exam.id)
+        questions = generate_all_questions(difficulty=exam_difficulty, user_id=user_id, module=module, exam_id=exam.id)
 
         total_marks = 0
 
@@ -98,6 +101,7 @@ class ExamListView(APIView):
             question.exam_id = exam.id
 
         exam.total_marks = total_marks
+        exam.difficulty = exam_difficulty
 
         exam.save()
 
@@ -166,6 +170,38 @@ class ExamAnswerView(APIView):
             stored_exam.save()
 
             serializer = ExamSerializer(stored_exam)
+
+            # Difficulty level update
+            module = exam['module']
+            exams_for_average = Exam.objects.filter(user_id=user_id, module=module, status=True)
+            total_marks_for_average = 0
+            for exam_for_average in exams_for_average:
+                total_marks_for_average += (exam_for_average.student_marks * 5)
+
+            average = total_marks_for_average / len(exams_for_average)
+            print(f"total: {total_marks_for_average} total_exam: {len(exams_for_average)}  average: {average}")
+
+            user_difficulty, created = UserDifficulty.objects.get_or_create(
+                user_id=user_id,
+                module=module,
+                defaults={
+                    'difficulty': 'easy',  # Default values for new records
+                    'average': 0.0
+                }
+            )
+            # user_difficulty = UserDifficulty.objects.get(user_id=user_id, module=module)
+            user_difficulty.average = average
+            difficulty = ''
+            if average < 50:
+                difficulty = 'easy'
+            elif average < 75:
+                difficulty = 'medium'
+            else:
+                difficulty = 'hard'
+
+            user_difficulty.difficulty = difficulty
+
+            user_difficulty.save()
 
             return Response(data={"exam": serializer.data, "questions": validated_questions}, status=status.HTTP_200_OK)
 
