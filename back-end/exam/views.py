@@ -11,6 +11,8 @@ from generator.serializers import ProgrammingQuestionSerializer
 from generator.question_generation_for_exam import generate_programming_question_for_exam
 from generator.validate_answer_question_for_exam import validate_answer_question_for_exam
 
+from user.models import UserDifficulty
+
 from concurrent.futures import ThreadPoolExecutor
 
 class ExamView(APIView):
@@ -66,6 +68,22 @@ class ExamListView(APIView):
         body = request.data
 
         module = body.get('module')
+
+        # Before creating exam, should create UserDifficulty for user_id, module
+        # This will either get the existing record or create a new one
+        obj, created = UserDifficulty.objects.get_or_create(
+            user_id=user_id,
+            module=module,
+            defaults={
+                'difficulty': 'easy',  # Default values for new records
+                'average': 0.0
+            }
+        )
+
+        if created:
+            print(f"Created new record for {user_id} - {module}")
+        else:
+            print(f"Record already exists with difficulty: {obj.difficulty}")
 
         exam = Exam(module=module, user_id=user_id, status=False)
 
