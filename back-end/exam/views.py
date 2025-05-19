@@ -161,6 +161,7 @@ class ExamAnswerView(APIView):
                 total_student_marks += validated_question['student_marks']
 
             stored_exam.student_marks = total_student_marks
+            stored_exam.status = is_completed
 
             stored_exam.save()
 
