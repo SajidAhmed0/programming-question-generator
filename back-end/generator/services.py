@@ -31,6 +31,7 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 HUGGINGFACEHUB_API_URL = os.getenv("HUGGINGFACEHUB_API_URL")
 
+from langchain_openai import OpenAIEmbeddings
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -44,6 +45,25 @@ llm = ChatOpenAI(
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index_name = os.getenv("PINECONE_INDEX_NAME")
 index = pc.Index(index_name)
+
+embedder = OpenAIEmbeddings(model="text-embedding-3-small")
+
+def retrieve_vector_for_topic(module_name: str, topic, top_k = 2):
+
+    vector = embedder.embed_query(topic)
+    namespace = module_name
+    results = index.query(
+        vector=vector,
+        top_k=top_k,
+        namespace=namespace,
+        include_metadata=True,
+    )
+
+    texts = [match["metadata"]["text"] for match in results["matches"]]
+
+    print(f"📄 Metadata: {texts}")
+
+    return texts[:top_k]
 
 def retrieve_random_vector(module_name: str):
     try:
@@ -133,9 +153,12 @@ def retrieve_similar_questions(topic, language, difficulty, q_type, namespace, t
 def clean_json_string(json_string):
     return json_string.replace("```json", "").replace("```", "").strip()
 
-def generate_programming_question(type, difficulty, user_id, module):
-    retrieved_context = retrieve_random_vector(module).metadata['text']
-
+def generate_programming_question(type, difficulty, user_id, module, topic):
+    if topic is None:
+        retrieved_context = retrieve_random_vector(module).metadata['text']
+    else:
+        retrieved_context = retrieve_vector_for_topic(module, topic)
+    print(f"TOPIC: {topic}")
     few_shot_mcq = """
     Example:
     {{
@@ -285,7 +308,10 @@ def generate_programming_question(type, difficulty, user_id, module):
     question.difficulty = difficulty
     question.question_type = type
     question.user_id = user_id
-    question.title = question_data['topic']
+    if topic is None:
+        question.title = question_data['topic']
+    else:
+        question.title = topic
 
     if type == "mcq":
         question.description = question_data['question']
