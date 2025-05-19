@@ -3,6 +3,8 @@ import random
 from pinecone import Pinecone
 from dotenv import load_dotenv
 
+from langchain_openai import OpenAIEmbeddings
+
 # Load environment variables
 load_dotenv()
 
@@ -10,6 +12,8 @@ load_dotenv()
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index_name = os.getenv("PINECONE_INDEX_NAME")
 index = pc.Index(index_name)
+
+embedder = OpenAIEmbeddings(model="text-embedding-3-small")
 
 def retrieve_random_vector(module_name: str):
     try:
@@ -47,7 +51,24 @@ def retrieve_random_vector(module_name: str):
         print(f"🔥 Error retrieving vector: {e}")
         return None
 
+
+def retrieve_vector_for_topic(module_name: str, topic, top_k=2):
+    vector = embedder.embed_query(topic)
+    namespace = module_name
+    results = index.query(
+        vector=vector,
+        top_k=top_k,
+        namespace=namespace,
+        include_metadata=True,
+    )
+
+    texts = [match["metadata"]["text"] for match in results["matches"]]
+
+    return texts[:top_k]
+
 # Example usage
 if __name__ == "__main__":
     module = "Object-Oriented Programming - IT2030"  # Update this as needed
-    retrieve_random_vector(module)
+    # retrieve_random_vector(module)
+
+    print(retrieve_vector_for_topic(module, 'array in java'))
