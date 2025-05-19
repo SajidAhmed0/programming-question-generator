@@ -201,6 +201,18 @@ class ExamAnswerView(APIView):
 
             user_difficulty.difficulty = difficulty
 
+            # Get invalid answer question for adaptability
+            adaptability_topics = []
+            for validated_question in validated_questions:
+                if validated_question['is_correct'] == False:
+                    topic = {
+                        "topic": validated_question['title'],
+                        "question_type": validated_question['question_type']
+                    }
+                    adaptability_topics.append(topic)
+
+            user_difficulty.adaptability = adaptability_topics
+
             user_difficulty.save()
 
             return Response(data={"exam": serializer.data, "questions": validated_questions}, status=status.HTTP_200_OK)
