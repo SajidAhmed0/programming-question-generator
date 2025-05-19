@@ -107,26 +107,39 @@ class ExamListView(APIView):
 
         serializer = ExamSerializer(exam)
 
+        # Setting adaptability to empty after created questions
+        user_difficulty.adaptability = []
+
+        user_difficulty.save()
+
         return Response(data={"exam": serializer.data, "questions": questions}, status=status.HTTP_200_OK)
 
 def generate_all_questions(difficulty, module, user_id, exam_id):
+    user_difficulty = UserDifficulty.objects.get(user_id=user_id, module=module)
+    adaptability_topics = user_difficulty.adaptability
+
+    mcq_count = len([q for q in adaptability_topics if q["question_type"] == "mcq"])
+    short_answer_count = len([q for q in adaptability_topics if q["question_type"] == "short-answer"])
+    coding_count = len([q for q in adaptability_topics if q["question_type"] == "coding"])
+
     tasks = (
-        ["mcq"] * 6 +
-        ["short-answer"] * 3 +
-        ["coding"]
+        adaptability_topics +
+        [{"question_type": "mcq", "topic": None}] * (6 - mcq_count) +
+        [{"question_type": "short-answer", "topic": None}] * (3 - short_answer_count) +
+        [{"question_type": "coding", "topic": None}] * (1 - coding_count)
     )
 
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = [
-            executor.submit(safe_generate, qtype, difficulty, user_id, module, exam_id)
+            executor.submit(safe_generate, qtype['question_type'], difficulty, user_id, module, exam_id, qtype['topic'])
             for qtype in tasks
         ]
         return [f.result() for f in futures]
 
-def safe_generate(qtype, difficulty, user_id, module, exam_id, retries=3):
+def safe_generate(qtype, difficulty, user_id, module, exam_id, topic, retries=3):
     for _ in range(retries):
         try:
-            return generate_programming_question_for_exam(qtype, difficulty, user_id, module, exam_id)
+            return generate_programming_question_for_exam(qtype, difficulty, user_id, module, exam_id, topic)
         except Exception as e:
             continue
     return {"error": f"Failed to generate {qtype} question"}
