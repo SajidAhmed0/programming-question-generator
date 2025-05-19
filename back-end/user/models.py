@@ -12,6 +12,7 @@ class UserDifficulty(models.Model):
         blank=True,
         null=True
     )
+    adaptability = models.JSONField(default=list)
 
     class Meta:
         unique_together = (('user_id', 'module'),)  # Creates composite primary key
