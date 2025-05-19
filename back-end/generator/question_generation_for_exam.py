@@ -7,8 +7,8 @@ from .coding_validator import validate_coding_sandboxed
 from .serializers import ProgrammingQuestionSerializer
 from .models import ProgrammingQuestion
 
-def generate_programming_question_for_exam(type, difficulty, user_id, module, exam_id):
-    question = generate_programming_question(type, difficulty, user_id, module)
+def generate_programming_question_for_exam(type, difficulty, user_id, module, exam_id, topic):
+    question = generate_programming_question(type, difficulty, user_id, module, topic)
 
     if question.question_type == 'mcq':
         valid = validate_mcq(question)
