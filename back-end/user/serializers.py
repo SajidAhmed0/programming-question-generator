@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import User
+from .models import UserDifficulty
 
-class UserSerializer(serializers.ModelSerializer):
+class UserDifficultySerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = UserDifficulty
         fields = '__all__'  # Use `['field1', 'field2']` for specific fields

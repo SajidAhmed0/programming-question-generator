@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .views import UserView
+from .views import UserDifficultyView
 
 urlpatterns = [
-    path('users/', UserView.as_view(), name='user-view')
+    path('user_difficulties/', UserDifficultyView.as_view(), name='user-difficulty-view')
 ]

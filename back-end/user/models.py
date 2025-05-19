@@ -1,10 +1,10 @@
 from django.db import models
 
 
-class User(models.Model):
-    email = models.EmailField(unique=True)
-    password = models.TextField()
-    name = models.CharField(max_length=255)
+class UserDifficulty(models.Model):
+    user_id = models.CharField(max_length=255, default='1')
+    difficulty = models.CharField(max_length=50, choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')])
+    module = models.CharField(max_length=255)
     average = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -13,5 +13,9 @@ class User(models.Model):
         null=True
     )
 
+    class Meta:
+        unique_together = (('user_id', 'module'),)  # Creates composite primary key
+        verbose_name_plural = "User Difficulties"
+
     def __str__(self):
-        return self.email
+        return f"{self.user_id} - {self.module} (Difficulty: {self.difficulty})"

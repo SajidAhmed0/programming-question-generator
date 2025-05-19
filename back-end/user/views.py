@@ -2,13 +2,13 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
-from .serializers import UserSerializer
-from .models import User
+from .serializers import UserDifficultySerializer
+from .models import UserDifficulty
 
-class UserView(APIView):
+class UserDifficultyView(APIView):
     def get(self, request):
-        questions = User.objects.all()
-        serializer = UserSerializer(questions, many=True)
+        user_difficulties = UserDifficulty.objects.all()
+        serializer = UserDifficultySerializer(user_difficulties, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -18,10 +18,10 @@ class UserView(APIView):
         email = body.get('email')
         password = body.get('password')
 
-        user = User(name=name, email=email, password=password)
+        user = UserDifficulty(name=name, email=email, password=password)
 
         user.save()
 
-        serializer = UserSerializer(user)
+        serializer = UserDifficultySerializer(user)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
