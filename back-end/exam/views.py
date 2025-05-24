@@ -12,6 +12,7 @@ from generator.question_generation_for_exam import generate_programming_question
 from generator.validate_answer_question_for_exam import validate_answer_question_for_exam
 
 from user.models import UserDifficulty
+from user.serializers import UserDifficultySerializer
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -251,3 +252,84 @@ def safe_validate_answer(answer_question, retries=3):
         except Exception as e:
             continue
     return {"error": f"Failed to evaluate {answer_question['id']} question"}
+
+
+class ExamStaticView(APIView):
+    def get(self, request):
+        user_difficulties = UserDifficulty.objects.all()
+        serializer = UserDifficultySerializer(user_difficulties, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, user_id):
+        body = request.data
+        module = body.get('module')
+
+        print(module)
+
+        user_difficulty, created = UserDifficulty.objects.get_or_create(
+            user_id=user_id,
+            module=module,
+            defaults={
+                'difficulty': 'easy',  # Default values for new records
+                'average': 0.0
+            }
+        )
+        exams = Exam.objects.filter(user_id=user_id, module=module, status=True)
+
+        total_exam = len(exams)
+
+        highest_marks = 0
+        lowest_marks = 999
+
+        total_mcq = 0
+        total_correct_mcq = 0
+
+        total_short_answer = 0
+        total_correct_short_answer = 0
+
+        total_coding = 0
+        total_correct_coding = 0
+
+
+        for exam in exams :
+            if exam.student_marks >= highest_marks:
+                highest_marks = exam.student_marks
+
+            if exam.student_marks <= lowest_marks:
+                lowest_marks = exam.student_marks
+
+            exam_questions = ProgrammingQuestion.objects.filter(exam_id=exam.id)
+            for question in exam_questions:
+                if question.question_type == 'mcq':
+                    total_mcq += 1
+                    if question.is_correct:
+                        total_correct_mcq += 1
+
+                if question.question_type == 'short-answer':
+                    total_short_answer += 1
+                    if question.is_correct:
+                        total_correct_short_answer += 1
+
+                if question.question_type == 'coding':
+                    total_coding += 1
+                    if question.is_correct:
+                        total_correct_coding += 1
+
+
+
+        responseObject = {
+            "average": user_difficulty.average,
+            "difficulty": user_difficulty.difficulty,
+            "total_exams": total_exam,
+            "highest_marks": highest_marks,
+            "lowest_marks": lowest_marks,
+            "total_mcq": total_mcq,
+            "total_correct_mcq": total_correct_mcq,
+            "total_short_answer": total_short_answer,
+            "total_correct_short_answer": total_correct_short_answer,
+            "total_coding": total_coding,
+            "total_correct_coding": total_correct_coding
+        }
+
+        return Response(data=responseObject, status=status.HTTP_200_OK)
