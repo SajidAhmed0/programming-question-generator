@@ -170,6 +170,7 @@ class ExamAnswerView(APIView):
         is_completed = exam['status']
 
         if is_completed:
+            stored_exam.completed_at = exam['completed_at']
             validated_questions = validate_answer_all_questions(answer_questions)
 
             total_student_marks = 0
