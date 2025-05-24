@@ -316,7 +316,8 @@ class ExamStaticView(APIView):
                     if question.is_correct:
                         total_correct_coding += 1
 
-
+        if lowest_marks > 100:
+            lowest_marks = 0
 
         responseObject = {
             "average": user_difficulty.average,
