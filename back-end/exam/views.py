@@ -156,7 +156,7 @@ class ExamAnswerView(APIView):
 
         stored_exam = Exam.objects.filter(id=exam_id).first()
 
-        if user_id != int(exam['user_id']):
+        if user_id != exam['user_id']:
             return Response(
                 {"error": "Exam is not belong to this user"},
                 status=status.HTTP_400_BAD_REQUEST
