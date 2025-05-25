@@ -12,18 +12,18 @@ import {
   limit as limitQuery,
   getDocs,
 } from "firebase/firestore";
-import { AnyQuestion, Difficulty, QuizFeedback } from "@/types";
+import { ProgrammingQuestion, DifficultyLevel, QuizFeedback } from "@/types";
 
 export interface QuizResult {
   userId: string;
   score: number;
-  difficulty: Difficulty;
+  difficulty: DifficultyLevel;
   timeSpent: string;
   startedAt: string;
   completedAt: string;
   answers: Record<string, string>;
   feedback: QuizFeedback[];
-  questions: AnyQuestion[];
+  questions: ProgrammingQuestion[];
 }
 
 export async function saveQuizResult(result: QuizResult) {
@@ -89,7 +89,7 @@ export async function getQuizResult(quizId: string) {
 }
 
 export async function getTopUsersByDifficulty(
-  difficulty: Difficulty,
+  difficulty: DifficultyLevel,
   maxResults: number = 10
 ) {
   try {
@@ -131,7 +131,7 @@ export async function getTopUsersByDifficulty(
   }
 }
 
-export async function getAverageScore(userId: string, difficulty: Difficulty) {
+export async function getAverageScore(userId: string, difficulty: DifficultyLevel) {
   try {
     const quizResultsRef = collection(db, "quizResults");
     const q = query(

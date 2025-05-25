@@ -1,10 +1,10 @@
 "use server";
 
-import { Difficulty, DifficultyLevels } from "@/types";
+import { DifficultyLevel, DifficultyLevels } from "@/types";
 import { db } from "@/config/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
-export async function saveUserLevel(userId: string, level: Difficulty) {
+export async function saveUserLevel(userId: string, level: DifficultyLevel) {
   try {
     const userLevelRef = doc(db, "userLevels", userId);
     await setDoc(
@@ -56,15 +56,15 @@ export async function getUserNameByUid(uid: string) {
 export async function updateUserLevelBasedOnQuizResult(
   userId: string,
   score: number,
-  currentLevel: Difficulty
+  currentLevel: DifficultyLevel
 ) {
-  const getUpperLevel = (level: Difficulty) => {
+  const getUpperLevel = (level: DifficultyLevel) => {
     if (level === DifficultyLevels.EASY) return DifficultyLevels.MEDIUM;
     if (level === DifficultyLevels.MEDIUM) return DifficultyLevels.HARD;
     return null;
   };
 
-  const getLowerLevel = (level: Difficulty) => {
+  const getLowerLevel = (level: DifficultyLevel) => {
     if (level === DifficultyLevels.HARD) return DifficultyLevels.MEDIUM;
     if (level === DifficultyLevels.MEDIUM) return DifficultyLevels.EASY;
     return null;

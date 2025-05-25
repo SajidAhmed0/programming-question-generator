@@ -1,10 +1,10 @@
-import { Difficulty } from ".";
+import { DifficultyLevel } from ".";
 
 export interface LeaderboardEntry {
   userId: string;
   totalScore: number;
   quizCount: number;
-  difficulty: Difficulty;
+  difficulty: DifficultyLevel;
   displayName: string;
   photoURL: string;
 }
