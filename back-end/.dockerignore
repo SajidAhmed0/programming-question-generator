@@ -1,0 +1,12 @@
+# Ignore environment files
+
+# Ignore virtual environments
+.venv/
+
+# Ignore Node.js dependencies
+front-end/node_modules/
+# Ignore temporary files and logs
+*.log
+__pycache__/
+*.pyc
+*.pyo
