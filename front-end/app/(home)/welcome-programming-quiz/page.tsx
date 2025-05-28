@@ -18,7 +18,7 @@ const modules = [
   "Data Structures & Algorithms - IT2070",
   "Object Oriented Concepts - IT1050",
   "Introduction to Programming - IT1010",
-  "Internet And Web Technologies - IT1100"
+  "Internet And Web Technologies- IT1100"
 ];
 
 const WelcomeProgrammingQuizPage = () => {
